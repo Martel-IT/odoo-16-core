@@ -1,0 +1,240 @@
+// Variables
+$o-app-menu-bg: #24454f;
+$o-app-menu-text: #ffffff;
+$o-app-menu-hover: #32606e;
+$o-app-menu-active: #32606e;
+$o-app-menu-width: 220px;
+
+// Fix per overflow dei dropdown
+.dropdown-menu, .o-dropdown-menu {
+    overflow: visible !important;
+}
+
+// Override del core dropdown style
+body {
+    // Main Apps Menu Styling
+    .o_navbar_apps_menu .o-dropdown--menu.dropdown-menu:not(.o_add_favorite):not([style*="top: 38px"]),
+    .o-dropdown--menu.dropdown-menu[style*="left: 0"]:not(.o_add_favorite):not([style*="top: 38px"]) {
+        position: fixed !important;
+        background: $o-app-menu-bg !important;
+        border: none !important;
+        border-radius: 0 0 4px 4px !important;
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15) !important;
+        padding: 8px 10px 8px 2px !important;
+        margin: 0 !important;
+        top: var(--o-navbar-height) !important;
+        left: 0 !important;
+        width: 220px !important;
+        height: 100vh !important;
+        overflow: visible !important;
+
+        // Stile degli elementi del menu
+        .dropdown-item.o_app {
+            display: flex !important;
+            align-items: center !important;
+            padding: 8px 10px 8px 25px !important;
+            color: $o-app-menu-text !important;
+            font-size: 13px !important;
+            transition: all 0.3s ease !important;
+            opacity: 0.7 !important;
+            gap: 12px !important;
+            line-height: 1.2 !important;
+            background: transparent !important;
+
+            &:hover, &:focus {
+                background: $o-app-menu-hover !important;
+                opacity: 1 !important;
+                color: $o-app-menu-text !important;
+                outline: none !important;
+            }
+
+            &.active, &.focus {
+                opacity: 1 !important;
+                background: $o-app-menu-active !important;
+                color: $o-app-menu-text !important;
+            }
+
+            &::before {
+                content: "" !important;
+                display: inline-block !important;
+                width: 20px !important;
+                height: 20px !important;
+                background-size: contain !important;
+                background-repeat: no-repeat !important;
+                background-position: center !important;
+                opacity: 1 !important;
+                filter: brightness(1.1) contrast(1.1) !important;
+            }
+        }
+
+        // Override specifico per rimuovere stili non desiderati
+        .dropdown-toggle:focus, 
+        .dropdown-item:focus {
+            background-color: $o-app-menu-hover !important;
+            outline: none !important;
+        }
+
+        .dropdown-toggle.focus, 
+        .dropdown-item.focus {
+            background-color: $o-app-menu-active !important;
+        }
+    }
+}
+
+// Stili per sottomenu e dropdown nidificati
+.o-dropdown--menu.dropdown-menu:not([style*="left: 0"]):not(.o_add_favorite):not([style*="top: 38px"]),
+.o-dropdown--menu.o-dropdown-menu:not([style*="left: 0"]):not(.o_add_favorite):not([style*="top: 38px"]) {
+    display: block !important;
+    position: absolute !important;
+    margin-left: 0 !important;
+    transform: none !important;
+    background: white !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+    z-index: 1051 !important;
+    max-height: calc(100vh - 60px) !important;
+    overscroll-behavior: contain !important;
+
+    // Stile della scrollbar
+    &::-webkit-scrollbar {
+        width: 6px !important;
+    }
+    
+    &::-webkit-scrollbar-track {
+        background: transparent !important;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(136, 136, 136, 0.5) !important;
+        border-radius: 3px !important;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+        background-color: rgba(136, 136, 136, 0.8) !important;
+    }
+
+    // Assicurati che il contenuto non venga tagliato
+    .dropdown-menu_group,
+    .dropdown-item {
+        white-space: nowrap !important;
+    }
+}
+
+// Custom filter menu
+.o_add_custom_filter_menu.dropend {
+    position: relative !important;
+
+    .o-dropdown--menu {
+        position: absolute !important;
+        top: 0 !important;
+        left: 100% !important;
+        margin-left: 4px !important;
+        margin-top: 0 !important;
+        border: 1px solid #dee2e6 !important;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08) !important;
+        z-index: 1052 !important;
+        background: white !important;
+        
+        .o_filter_condition {
+            padding: 8px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+            
+            select, input {
+                width: 200px !important;
+                margin-bottom: 8px !important;
+            }
+        }
+    }
+}
+
+// App specific icons
+.o_main_navbar .dropdown-menu .dropdown-item {
+    &[data-menu-xmlid="mail.menu_root_discuss"]::before {
+        background-image: url("/mail/static/description/icon.png") !important;
+    }
+
+    &[data-menu-xmlid="calendar.mail_menu_calendar"]::before {
+        background-image: url("/web/static/img/calendar.png") !important;
+    }
+
+    &[data-menu-xmlid="contacts.menu_contacts"]::before {
+        background-image: url("/contacts/static/description/icon.png") !important;
+    }
+
+    &[data-menu-xmlid="crm.crm_menu_root"]::before {
+        background-image: url("/crm/static/description/icon.png") !important;
+    }
+
+    &[data-menu-xmlid="sale.sale_menu_root"]::before {
+        background-image: url("/sale/static/description/icon.png") !important;
+    }
+
+    &[data-menu-xmlid="utm.menu_link_tracker_root"]::before {
+        background-image: url("/web/static/img/link-tracker.png") !important;
+    }
+
+    &[data-menu-xmlid="account.menu_finance"]::before {
+        background-image: url("/account/static/description/icon.png") !important;
+    }
+
+    &[data-menu-xmlid="project.menu_main_pm"]::before {
+        background-image: url("/project/static/description/icon.png") !important;
+    }
+
+    &[data-menu-xmlid="hr_timesheet.timesheet_menu_root"]::before {
+        background-image: url("/hr_timesheet/static/description/icon.png") !important;
+    }
+
+    &[data-menu-xmlid="hr.menu_hr_root"]::before {
+        background-image: url("/hr/static/description/icon.png") !important;
+    }
+
+    &[data-menu-xmlid="hr_holidays.menu_hr_holidays_root"]::before {
+        background-image: url("/hr_holidays/static/description/icon.png") !important;
+    }
+
+    &[data-menu-xmlid="hr_expense.menu_hr_expense_root"]::before {
+        background-image: url("/hr_expense/static/description/icon.png") !important;
+    }
+
+    &[data-menu-xmlid="base.menu_management"]::before {
+        background-image: url("/web/static/img/icon-apps.png") !important;
+    }
+
+    &[data-menu-xmlid="base.menu_administration"]::before {
+        background-image: url("/base/static/description/settings.png") !important;
+    }
+}
+
+// Menu header
+body .o_navbar_apps_menu .o-dropdown--menu.dropdown-menu[style*="left: 0"]::before,
+body .o-dropdown--menu.dropdown-menu[style*="left: 0"]::before {
+    content: "MENU" !important;
+    display: block !important;
+    color: $o-app-menu-text !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    padding: 1.5rem 1.5rem 1rem !important;
+    letter-spacing: 1px !important;
+    background: $o-app-menu-bg !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 2 !important;
+}
+
+// Fix per la responsività e lo scroll della tabella
+.o_content {
+    position: relative !important;
+/*    display: flex !important; */
+    flex: 1 1 auto !important;
+    height: 100% !important;
+    overflow: auto !important;
+}
+
+// Fix specifico per il menu Technical
+button[data-menu-xmlid="base.menu_custom"] + .o-dropdown--menu.dropdown-menu {
+    overflow-y: auto !important;
+}

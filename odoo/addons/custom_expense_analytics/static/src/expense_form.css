@@ -1,0 +1,11 @@
+.o_analytic_percentage_cell {
+    display: none !important;
+}
+
+.o_analytic_account_name {
+    width: 100% !important;
+}
+
+.o_field_analytic_distribution table tbody tr td:last-child {
+    display: none !important;
+}

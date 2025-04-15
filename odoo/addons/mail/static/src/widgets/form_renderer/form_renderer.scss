@@ -1,0 +1,79 @@
+
+/* /mail/static/src/widgets/form_renderer/form_renderer.scss */
+
+/* /mail/static/src/widgets/form_renderer/form_renderer.scss */
+.o_FormRenderer_chatterContainer {
+  --ChatterTopbar-border: 1px solid #dee2e6;
+  --ChatterTopbar-padding-v: 0.5rem;
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding-bottom: 3rem;
+  order: 9999 !important;
+  /* Forza l'elemento alla fine */
+  float: none !important;
+}
+
+/* Reset completo della versione aside */
+.o_FormRenderer_chatterContainer.o-aside {
+  position: static !important;
+  display: block !important;
+  width: 100% !important;
+  max-width: none !important;
+  border: none !important;
+  padding: 0 !important;
+  float: none !important;
+  flex: none !important;
+  order: 9999 !important;
+}
+
+/* Forza il contenitore interno a width 100% */
+.o_ChatterContainer {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+/* Reset dei media queries */
+@media screen {
+  .o_FormRenderer_chatterContainer,
+.o_FormRenderer_chatterContainer.o-aside,
+.o_FormRenderer_chatterContainer .o_ChatterContainer {
+    width: 100% !important;
+    max-width: none !important;
+    position: static !important;
+    float: none !important;
+    margin: 0 !important;
+  }
+}
+
+/* Forza il form view parent a utilizzare un layout corretto */
+.o_form_view {
+  display: -webkit-box !important; display: -webkit-flex !important; display: flex !important;
+  flex-direction: column !important;
+}
+
+/* Forza il contenitore del form a occupare lo spazio disponibile */
+.o_form_sheet_bg {
+  flex: 1 1 auto !important;
+}
+
+/* Assicura che il chatter sia sempre sotto */
+.o_FormRenderer_chatterContainer {
+  flex: 0 0 auto !important;
+}
+
+/* Rimuovi qualsiasi padding/margin che potrebbe causare spazi indesiderati */
+.o_form_sheet {
+  margin-bottom: 0 !important;
+}
+
+/* Rimuovi eventuali float che potrebbero interferire */
+.o_form_sheet_bg,
+.o_form_sheet,
+.o_form_view {
+  float: none !important;
+  clear: both !important;
+}
+

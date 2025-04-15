@@ -1,0 +1,4 @@
+div.o_list_renderer > table.o_list_table th:not(.o_list_controller) {
+    max-width: none !important;
+    min-width: 0 !important;
+}

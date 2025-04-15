@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="action_report_print_timesheets" model="ir.actions.report">
+            <field name="name">Timesheets</field>
+            <field name="model">timesheet.report</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">timesheets_by_employee.report_timesheets</field>
+            <field name="report_file">timesheets_by_employee.report_timesheets</field>
+            <field name="binding_model_id" ref="model_timesheet_report"/>
+            <field name="binding_type">report</field>
+            <field name="print_report_name">'Timesheet Report - %s' % (object.user_id[0].name)</field>
+            <field name="paperformat_id" ref="base.paperformat_euro"/>
+            <field name="attachment_use">False</field>
+            <field name="attachment"></field>
+        </record>
+
+        <!-- Paperformat per il report -->
+        <record id="paperformat_timesheet" model="report.paperformat">
+            <field name="name">Timesheet Report A4</field>
+            <field name="default" eval="True"/>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">40</field>
+            <field name="margin_bottom">28</field>
+            <field name="margin_left">10</field>
+            <field name="margin_right">10</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">20</field>
+            <field name="dpi">120</field>
+        </record>
+
+        <!-- Collega il paperformat al report -->
+        <record id="action_report_print_timesheets" model="ir.actions.report">
+            <field name="paperformat_id" ref="paperformat_timesheet"/>
+        </record>
+    </data>
+</odoo>

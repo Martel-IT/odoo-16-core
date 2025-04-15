@@ -1,0 +1,88 @@
+.o_form_view {
+    .o_input {
+        padding: 6px 1px !important;
+    }
+    
+    .o_form_sheet_bg {
+        width: 98.5% !important;
+        max-width: 98.5% !important;
+        padding: 0 4px !important;
+        margin: 0 auto !important;
+        
+        .o_form_sheet {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+    }
+
+    // Notebook e Tabs
+    .o_notebook {
+        > .nav {
+            display: flex !important;
+            width: 100% !important;
+            border-bottom: 1px solid #dee2e6 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        > .tab-content {
+            padding: 8px 0 !important;
+            margin: 0 !important;
+            width: 100% !important;
+        }
+    }
+
+    .hr_timesheet_sheet_summary {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        
+        > table, .o_list_view {
+            width: 100% !important;
+            margin: 0 !important;
+            font-size: 1.1em !important;
+            table-layout: fixed !important;
+
+            // Prima colonna (progetti)
+            td:first-child, th:first-child {
+                width: 180px !important;
+                max-width: 180px !important;
+                white-space: normal !important;
+                word-wrap: break-word !important;
+            }
+
+            // Colonne delle date
+            td:not(:first-child):not(:last-child), 
+            th:not(:first-child):not(:last-child) {
+                width: 50px !important;
+                max-width: 50px !important;
+                white-space: normal !important;
+                text-align: center !important;
+                vertical-align: middle !important;
+                padding: 3px !important;
+            }
+
+            // Ultima colonna (totali)
+            td:last-child, th:last-child {
+                width: 80px !important;
+                font-weight: bold !important;
+            }
+        }
+        
+        td, th {
+            padding: 8px 3px !important;
+            
+            &:not(:first-child) {
+                text-align: center !important;
+            }
+        }
+    }
+}
+
+.o_content {
+    max-width: 98.5% !important;
+    width: 98.5% !important;
+    margin: 0 auto !important;
+    padding: 2px !important;
+}

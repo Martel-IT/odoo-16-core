@@ -1,0 +1,147 @@
+<t t-name="timesheets_by_employee.report_timesheets">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="o">
+                <t t-set="company" t-value="res_company"/>
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <!-- Header personalizzato -->
+                        <div class="row mb-4">
+                            <div class="col-6">
+                              <br>
+                                
+                              </br>
+                            </div>
+                        </div>
+
+                        <div class="container">
+                            <!-- Report Title -->
+                            <div class="row">
+                                <div class="col-12 text-center mb-4">
+                                    <h2>Timesheet Report by Employees</h2>
+                                </div>
+                            </div>
+
+                            <!-- Employee and Period Info -->
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <strong>Employee Name: </strong>
+                                    <span t-esc="employee.name"/>
+                                </div>
+                                <div class="col-6">
+                                    <strong>Period: </strong>
+                                    <span t-esc="period"/>
+                                </div>
+                            </div>
+
+                            <!-- Total Hours -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <strong>Total Hours: </strong>
+                                    <span t-esc="timesheet_data['total_hours_display']"/>
+                                </div>
+                            </div>
+
+                            <!-- Projects Loop -->
+                            <t t-foreach="timesheet_data['projects']" t-as="project">
+                                <!-- Aggiungiamo il page-break-inside per evitare che il progetto sia diviso su più pagine -->
+                                <div class="row mt-4" style="page-break-inside: avoid; page-break-before: auto;">
+                                    <div class="col-12">
+                                        <h4 class="bg-light p-2" t-esc="project"/>
+                                        
+                                        <!-- Tasks Loop - Skip if task is 'No Task' -->
+                                        <t t-foreach="timesheet_data['projects'][project]['tasks']" t-as="task">
+                                            <t t-if="task != 'No Task'">
+                                                <div class="mt-3" style="page-break-inside: avoid;">
+                                                    <h5 t-esc="task"/>
+                                                    
+                                                    <div class="table-responsive">
+                                                        <table class="table table-sm table-bordered">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th width="15%">Date</th>
+                                                                    <th width="70%">Description</th>
+                                                                    <th width="15%" class="text-right">Hours</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <t t-foreach="timesheet_data['projects'][project]['tasks'][task]['entries']" t-as="entry">
+                                                                    <tr>
+                                                                        <td><span t-esc="entry['date']" t-options="{'widget': 'date'}"/></td>
+                                                                        <td><span t-esc="entry['description']"/></td>
+                                                                        <td class="text-right"><span t-esc="entry['duration']"/></td>
+                                                                    </tr>
+                                                                </t>
+                                                                <tr class="table-light">
+                                                                    <td colspan="2" class="text-right"><strong>Task Total:</strong></td>
+                                                                    <td class="text-right">
+                                                                        <strong t-esc="timesheet_data['projects'][project]['tasks'][task]['subtotal_display']"/>
+                                                                    </td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </t>
+                                        
+                                        <!-- Show entries without task -->
+                                        <t t-if="'No Task' in timesheet_data['projects'][project]['tasks']">
+                                            <div class="mt-3" style="page-break-inside: avoid;">
+                                                <div class="table-responsive">
+                                                    <table class="table table-sm table-bordered">
+                                                        <thead>
+                                                            <tr>
+                                                                <th width="15%">Date</th>
+                                                                <th width="70%">Description</th>
+                                                                <th width="15%" class="text-right">Hours</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            <t t-foreach="timesheet_data['projects'][project]['tasks']['No Task']['entries']" t-as="entry">
+                                                                <tr>
+                                                                    <td><span t-esc="entry['date']" t-options="{'widget': 'date'}"/></td>
+                                                                    <td><span t-esc="entry['description']"/></td>
+                                                                    <td class="text-right"><span t-esc="entry['duration']"/></td>
+                                                                </tr>
+                                                            </t>
+                                                            <tr class="table-light">
+                                                                <td colspan="2" class="text-right"><strong>Total:</strong></td>
+                                                                <td class="text-right">
+                                                                    <strong t-esc="timesheet_data['projects'][project]['tasks']['No Task']['subtotal_display']"/>
+                                                                </td>
+                                                            </tr>
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        </t>
+                                        
+                                        <div class="text-right mb-4 bg-light p-2">
+                                            <strong>Project Total: </strong>
+                                            <span t-esc="timesheet_data['projects'][project]['subtotal_display']"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </div>
+
+                    <!-- Footer with Contact Info -->
+                    <div class="footer">
+                        <div class="text-center" style="border-top: 1px solid #dee2e6; padding-top: 10px;">
+                            <div class="row">
+                                <div class="col-12 text-center">
+                                    <span t-if="company_data.get('phone')">Tel: <t t-esc="company_data['phone']"/></span>
+                                    <span t-if="company_data.get('email')" style="margin: 0 15px;">Email: <t t-esc="company_data['email']"/></span>
+                                    <span t-if="company_data.get('website')">Web: <t t-esc="company_data['website']"/></span>
+                                </div>
+                            </div>
+                            <div class="text-center text-muted mt-2">
+                                Page <span class="page"/> of <span class="topage"/>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </t>

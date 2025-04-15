@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<templates> 
+    <t t-inherit="web.UserMenu" t-inherit-mode="extension" owl="1">
+        <xpath expr="//t[@t-set-slot='toggler']" position="replace">
+            <t t-set-slot="toggler">
+                <img class="o_avatar o_user_avatar rounded" t-att-src="source" alt="User"/> 
+            </t>
+        </xpath> 
+    </t>  
+    
+    <t t-inherit="web.SwitchCompanyMenu" t-inherit-mode="extension">
+        <xpath expr="//t[@t-set-slot='toggler']" position="replace">
+            <t t-set-slot="toggler">
+                <i class="fa fa-building" title="Switch Company"/>
+            </t>
+        </xpath>
+    </t>
+</templates>

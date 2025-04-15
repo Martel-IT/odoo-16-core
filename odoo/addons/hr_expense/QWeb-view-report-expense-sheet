@@ -1,0 +1,93 @@
+<t t-name="hr_expense.report_expense_sheet">
+    <t t-call="web.html_container">
+        <t t-foreach="docs" t-as="o">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <div class="row mb-3">
+                        <div class="col-12">
+                            <!-- Move ID to the h2 and style it -->
+                            <h2>
+                                Expense Report
+                                <span style="font-size: 1.5rem; margin-left: 10px;">(ID: <span t-esc="o.id"/>)</span>
+                            </h2>
+                        </div>
+                    </div>
+
+                    <div class="row mt32 mb32">
+                        <div class="col-2">
+                            <strong>Employee:</strong>
+                            <p t-field="o.employee_id.name"/>
+                        </div>
+                        <div class="col-3">
+                            <strong>Description:</strong>
+                            <p t-field="o.name"/>
+                        </div>
+                        <div class="col-2">
+                            <strong>Validated By:</strong>
+                            <p t-field="o.user_id"/>
+                        </div>
+                        <div class="col-3">
+                            <strong>Payment By:</strong>
+                            <p t-field="o.payment_mode"/>
+                        </div>
+                    </div>
+
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th class="col-2">Date</th>
+                                <th class="col-4">Description</th>
+                                <th class="col-2">Project</th>
+                                <th class="col-1 text-end">Unit Price</th>
+                                <th class="col-1 text-center">Qty</th>
+                                <th class="col-1 text-end">Price</th>
+                                <th t-if="o.is_multiple_currency" class="col-1 text-end">Price in Company Currency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="o.expense_line_ids" t-as="line">
+                                <td class="col-2"><span t-field="line.date"/></td>
+                                <td class="col-4">
+                                    <span t-field="line.name"/>
+                                    <span t-if="line.description" t-field="line.description"/>
+                                </td>
+                                <td class="col-2">
+                                    <t t-foreach="line.analytic_distribution" t-as="distribution">
+                                        <span t-esc="line.env['account.analytic.account'].browse(int(distribution))[0].name"/>
+                                        (<t t-esc="line.analytic_distribution.get(distribution)"/>%)
+                                    </t>
+                                </td>
+                                <td class="col-1 text-end">
+                                    <span t-field="line.unit_amount"/>
+                                </td>
+                                <td class="col-1 text-center">
+                                    <span t-field="line.quantity"/>
+                                </td>
+                                <td class="col-1 text-end">
+                                    <span t-field="line.total_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: line.currency_id}"/>
+                                </td>
+                                <td t-if="o.is_multiple_currency" class="col-1 text-end">
+                                    <span t-field="line.total_amount_company"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="row justify-content-end">
+                        <div class="col-4">
+                            <table class="table table-sm">
+                                <tr class="border-black">
+                                    <td><strong>Total</strong></td>
+                                    <td class="text-end">
+                                        <span t-field="o.total_amount" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <p>Certified honest and conform,<br/>(Date and signature).<br/><br/></p>
+                </div>
+            </t>
+        </t>
+    </t>
+</t>

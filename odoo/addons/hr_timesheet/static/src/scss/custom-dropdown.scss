@@ -1,0 +1,55 @@
+.o-dropdown--menu.dropdown-menu.d-block {
+    position: absolute !important;
+    transform: none !important;
+    top: auto !important;
+    left: -25px !important;
+    margin-top: 0 !important;
+    z-index: 1050 !important;
+
+    &[style*="position: fixed"] {
+       position: absolute !important;
+    }
+
+    &[style*="top: -"] {
+        top: 100% !important;
+    }
+}
+
+table[style*="table-layout: fixed;"] .o-dropdown--menu.dropdown-menu.d-block,
+table[style*="table-layout: fixed;"] .o-dropdown--menu.d-block.o-dropdown-menu {
+  left: -330px !important;
+}
+
+.o_pivot {
+    .o-dropdown {
+        position: relative !important;
+        
+        .dropdown-menu {
+            position: absolute !important;
+            left: 0 !important;
+            top: 100% !important;
+            margin-top: 2px !important;
+            transform: none !important;
+        }
+    }
+}
+
+
+.table-responsive {
+    overflow-x: initial !important;
+}
+
+// Override specifico per i sottomenu
+.o_pivot_measures_list,
+.o-dropdown--menu {
+    &.dropdown-menu {
+        position: absolute !important;
+        margin-top: 0 !important;
+        transform: none !important;
+        
+        &[style*="position: fixed"] {
+            position: absolute !important;
+            top: 35px !important;
+        }
+    }
+}
