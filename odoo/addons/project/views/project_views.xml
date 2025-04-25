@@ -595,7 +595,19 @@
                                         </div>
                                     </div>
                                 </group>
-                                <group name="group_time_managment" string="Time Management" invisible="1" col="1" class="row mt16 o_settings_container"/>
+                                <group name="group_time_managment" string="Time Management" col="1" class="row mt16 o_settings_container">
+                                        <div class="o_setting_box" id="exclude_timesheet_print_setting">
+                                            <div class="o_setting_left_pane">
+                                                <field name="excl_from_printed_timesheets"/>
+                                            </div>
+                                            <div class="o_setting_right_pane">
+                                                <label for="excl_from_printed_timesheets" string="Exclude from printed timesheets"/>
+                                                <div class="text-muted">
+                                                    Time written on this project will not be shown on the timesheet report.
+                                                </div>
+                                            </div>
+                                        </div>
+                                </group>
                                 <group name="group_documents_analytics" string="Analytics" col="1" class="row mt16 o_settings_container" attrs="{'invisible': [('allow_rating', '=', False)]}">
                                     <div>
                                         <field name="allow_rating" invisible="1"/>
