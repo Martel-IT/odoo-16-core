@@ -747,7 +747,7 @@
                         <group>
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="user_id" widget="many2one_avatar_user"/>
-                            <field name="accounting_date" groups="account.group_account_invoice,account.group_account_readonly" attrs="{'invisible': [('state', 'not in', ['approve', 'post', 'done'])], 'readonly': [('state', 'in', ['post', 'done'])]}"/>
+                            <field name="approval_date_from_chatter" attrs="{'invisible': [('state', 'not in', ['approve', 'post', 'done'])]}" string="Approval Date"/>
                         </group>
                     </group>
                      <notebook>

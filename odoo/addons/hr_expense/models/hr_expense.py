@@ -965,6 +965,27 @@ class HrExpenseSheet(models.Model):
     @api.model
     def _default_employee_id(self):
         return self.env.user.employee_id
+    
+    approval_date_from_chatter = fields.Date(
+        string='Approval Date from Chatter',
+        compute='_compute_approval_date_from_chatter'
+    )
+
+    def _compute_approval_date_from_chatter(self):
+        for sheet in self:
+            domain = [
+                ('model', '=', 'hr.expense.sheet'),
+                ('res_id', '=', sheet.id),
+                ('body', 'ilike', 'Expense Approval done'</span>),
+            ]
+            message = self.env['mail.message'].sudo().search(domain, order='date asc', limit=1)
+            # Estrai solo la parte di data dal timestamp
+            if message and message.date:
+                # Questo converte esplicitamente in un oggetto date di Python
+                date_only = fields.Date.from_string(fields.Date.to_string(message.date))
+                sheet.approval_date_from_chatter = date_only
+            else:
+                sheet.approval_date_from_chatter = False
 
     @api.model
     def _default_journal_id(self):
