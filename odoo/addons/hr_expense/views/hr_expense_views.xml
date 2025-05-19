@@ -56,7 +56,8 @@
                     <field name="payment_mode" optional="show"/>
                     <field name="activity_ids" widget="list_activity" optional="show"/>
                     <field name="accounting_date" optional="hide" groups="account.group_account_invoice,account.group_account_readonly" readonly="0"/>
-                    <field name="reference" optional="hide" groups="account.group_account_readonly"/>
+                    <field name="approval_date_from_chatter" attrs="{'invisible': [('state', 'not in', ['approve', 'post', 'done'])]}" string="Approval Date"/>
+                   <field name="reference" optional="hide" groups="account.group_account_readonly"/>
                    <field name="analytic_account_name"/>
                     <field name="analytic_distribution" widget="analytic_distribution"
                            optional="show"
@@ -747,7 +748,7 @@
                         <group>
                             <field name="company_id" groups="base.group_multi_company"/>
                             <field name="user_id" widget="many2one_avatar_user"/>
-                            <field name="approval_date_from_chatter" attrs="{'invisible': [('state', 'not in', ['approve', 'post', 'done'])]}" string="Approval Date"/>
+                            <field name="accounting_date" groups="account.group_account_invoice,account.group_account_readonly" attrs="{'invisible': [('state', 'not in', ['approve', 'post', 'done'])], 'readonly': [('state', 'in', ['post', 'done'])]}"/>
                         </group>
                     </group>
                      <notebook>

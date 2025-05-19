@@ -26,6 +26,10 @@
                             <strong>Validated By:</strong>
                             <p t-field="o.user_id"/>
                         </div>
+    			<div class="col-2">
+        		    <strong>Approval Date:</strong>
+                            <p t-field="o.approval_date_from_chatter"/>
+                        </div>	
                         <div class="col-3">
                             <strong>Payment By:</strong>
                             <p t-field="o.payment_mode"/>

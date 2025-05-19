@@ -976,7 +976,7 @@ class HrExpenseSheet(models.Model):
             domain = [
                 ('model', '=', 'hr.expense.sheet'),
                 ('res_id', '=', sheet.id),
-                ('body', 'ilike', 'Expense Approval done'),
+                ('body', 'ilike', 'Expense Approval</span> done'),
             ]
             message = self.env['mail.message'].sudo().search(domain, order='date asc', limit=1)
             sheet.approval_date_from_chatter = message.date.date() if message and message.date else False
