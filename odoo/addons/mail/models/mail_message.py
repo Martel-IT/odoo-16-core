@@ -155,7 +155,7 @@ class Message(models.Model):
     tracking_value_ids = fields.One2many(
         'mail.tracking.value', 'mail_message_id',
         string='Tracking values',
-        groups="base.group_system",
+        groups="base.group_system,hr_timesheet.group_timesheet_manager",
         help='Tracked values are stored in a separate model. This field allow to reconstruct '
              'the tracking and to generate statistics on the model.')
     # mail gateway
