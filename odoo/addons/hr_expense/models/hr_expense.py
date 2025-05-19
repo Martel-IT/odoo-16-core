@@ -976,7 +976,7 @@ class HrExpenseSheet(models.Model):
             domain = [
                 ('model', '=', 'hr.expense.sheet'),
                 ('res_id', '=', sheet.id),
-                ('body', 'ilike', 'Expense Approval done'</span>),
+                ('body', 'ilike', 'Expense Approval done'),
             ]
             message = self.env['mail.message'].sudo().search(domain, order='date asc', limit=1)
             # Estrai solo la parte di data dal timestamp
