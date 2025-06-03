@@ -234,6 +234,12 @@ class HrExpense(models.Model):
             if not expense.sheet_id:
                 expense.amount_residual = expense.total_amount
                 continue
+                
+            # ✨ MODIFICA: Per expense negative, l'amount residual dovrebbe essere 0 se già processato
+            if expense.total_amount_company < 0 and expense.sheet_id.account_move_id:
+                expense.amount_residual = 0.0
+                continue
+                
             if not expense.currency_id or expense.currency_id == expense.company_currency_id:
                 residual_field = 'amount_residual'
             else:
@@ -711,6 +717,33 @@ Or send your receipts at <a href="mailto:%(email)s?subject=Lunch%%20with%%20cust
             'analytic_distribution': self.analytic_distribution,
             'expense_id': self.id,
             'partner_id': False if self.payment_mode == 'company_account' else self.employee_id.sudo().address_home_id.commercial_partner_id.id,
+            'tax_ids': [Command.set(self.tax_ids.ids)],
+        }
+
+    # ✨ NUOVO METODO: Per expense negative con payment_mode='company_account'
+    def _prepare_move_line_vals_for_negative(self):
+        """
+        Prepara move line values per expense negative, invertendo i segni appropriatamente
+        """
+        self.ensure_one()
+        account = self.account_id
+        if not account:
+            if self.product_id:
+                account = self.product_id.product_tmpl_id._get_product_accounts()['expense']
+            else:
+                account = self.env['ir.property']._get('property_account_expense_categ_id', 'product.category')
+
+        # Per expense negative, invertiamo il comportamento
+        return {
+            'name': self.employee_id.name + ': REFUND - ' + self.name.split('\n')[0][:64],
+            'account_id': account.id,
+            'quantity': self.quantity or 1,
+            'price_unit': -self.unit_amount,  # Inverti il segno
+            'product_id': self.product_id.id,
+            'product_uom_id': self.product_uom_id.id,
+            'analytic_distribution': self.analytic_distribution,
+            'expense_id': self.id,
+            'partner_id': self.employee_id.sudo().address_home_id.commercial_partner_id.id,
             'tax_ids': [Command.set(self.tax_ids.ids)],
         }
 
@@ -1269,24 +1302,41 @@ class HrExpenseSheet(models.Model):
         self.activity_update()
         return res
 
+    # ✨ MODIFICA PRINCIPALE: Gestione separata per expense negative
     def _do_create_moves(self):
-        self = self.with_context(clean_context(self.env.context)) # remove default_*
+        self = self.with_context(clean_context(self.env.context))
         skip_context = {
-            'skip_invoice_sync':True,
-            'skip_invoice_line_sync':True,
-            'skip_account_move_synchronization':True,
-            'check_move_validity':False,
+            'skip_invoice_sync': True,
+            'skip_invoice_line_sync': True,
+            'skip_account_move_synchronization': True,
+            'check_move_validity': False,
         }
+        
+        # Separa in base al payment_mode
         own_account_sheets = self.filtered(lambda sheet: sheet.payment_mode == 'own_account')
         company_account_sheets = self - own_account_sheets
-
-        moves = self.env['account.move'].create([sheet._prepare_bill_vals() for sheet in own_account_sheets])
-        payments = self.env['account.payment'].with_context(**skip_context).create([sheet._prepare_payment_vals() for sheet in company_account_sheets])
-        moves |= payments.move_id
+        
+        # ✨ NOVITÀ: Separa company_account_sheets in base al segno del totale
+        positive_company_sheets = company_account_sheets.filtered(lambda sheet: sheet.total_amount >= 0)
+        negative_company_sheets = company_account_sheets.filtered(lambda sheet: sheet.total_amount < 0)
+        
+        moves = self.env['account.move']
+        
+        # 1. Crea bills per own_account (comportamento normale)
+        if own_account_sheets:
+            moves |= self.env['account.move'].create([sheet._prepare_bill_vals() for sheet in own_account_sheets])
+        
+        # 2. Crea payments per company_account con importo positivo (comportamento normale)
+        if positive_company_sheets:
+            payments = self.env['account.payment'].with_context(**skip_context).create([sheet._prepare_payment_vals() for sheet in positive_company_sheets])
+            moves |= payments.move_id
+        
+        # 3. ✨ NOVITÀ: Crea account.move (come Odoo 14) per company_account con importo negativo
+        if negative_company_sheets:
+            moves |= self.env['account.move'].create([sheet._prepare_bill_vals_for_negative() for sheet in negative_company_sheets])
+        
         moves.action_post()
-
         self.activity_update()
-
         return moves
 
     def _prepare_payment_vals(self):
@@ -1377,6 +1427,22 @@ class HrExpenseSheet(models.Model):
             'partner_id': self.employee_id.sudo().address_home_id.commercial_partner_id.id,
             'currency_id': self.currency_id.id,
             'line_ids':[Command.create(expense._prepare_move_line_vals()) for expense in self.expense_line_ids],
+        }
+
+    # ✨ NUOVO METODO: Per expense negative con payment_mode='company_account'
+    def _prepare_bill_vals_for_negative(self):
+        """
+        Per expense negative con payment_mode='company_account', 
+        crea un account.move invece di un account.payment
+        """
+        self.ensure_one()
+        return {
+            **self._prepare_move_vals(),
+            'journal_id': self.bank_journal_id.id,  # Usa bank_journal invece di journal normale
+            'move_type': 'in_refund',  # Importante: usa refund invece di invoice
+            'partner_id': self.employee_id.sudo().address_home_id.commercial_partner_id.id,
+            'currency_id': self.currency_id.id,
+            'line_ids': [Command.create(expense._prepare_move_line_vals_for_negative()) for expense in self.expense_line_ids],
         }
 
     def _prepare_move_vals(self):
