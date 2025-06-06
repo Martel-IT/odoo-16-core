@@ -17,9 +17,13 @@ class HrExpense(models.Model):
     _order = "date desc, id desc"
     _check_company_auto = True
 
+    # CAMPI ANALITICI - CORRETTAMENTE INDENTATI
     analytic_account_id = fields.Many2one(
         'account.analytic.account',
         string="Analytic Account",
+        compute='_compute_analytic_account_id',
+        store=True,
+        readonly=False,
         help="Select the related analytic account for this expense"
     )
 
@@ -29,6 +33,25 @@ class HrExpense(models.Model):
         store=True
     )
 
+    
+    @api.depends("analytic_distribution")
+    def _compute_analytic_account_id(self):
+        for record in self:
+            if record.analytic_distribution:
+                # Prende il primo analytic account dall'analytic_distribution
+                analytic_id = list(record.analytic_distribution.keys())[0]
+                record.analytic_account_id = int(analytic_id)
+            else:
+                record.analytic_account_id = False
+
+    @api.onchange('analytic_account_id')
+    def _onchange_analytic_account_id(self):
+        """Sincronizza analytic_account_id verso analytic_distribution"""
+        if self.analytic_account_id:
+            self.analytic_distribution = {str(self.analytic_account_id.id): 100.0}
+        else:
+            self.analytic_distribution = False
+
     @api.depends("analytic_distribution")
     def _compute_analytic_account_name(self):
         for record in self:
@@ -36,6 +59,8 @@ class HrExpense(models.Model):
                 analytic_id = list(record.analytic_distribution.keys())[0]  # Get the first key (analytic account ID)
                 analytic = self.env["account.analytic.account"].browse(int(analytic_id))
                 record.analytic_account_name = analytic.name if analytic else ""
+            else:
+                record.analytic_account_name = ""
 
     @api.model
     def _default_employee_id(self):
