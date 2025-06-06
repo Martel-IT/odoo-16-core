@@ -235,7 +235,7 @@ class HrExpense(models.Model):
                 expense.amount_residual = expense.total_amount
                 continue
                 
-            # ✨ MODIFICA: Per expense negative, l'amount residual dovrebbe essere 0 se già processato
+            
             if expense.total_amount_company < 0 and expense.sheet_id.account_move_id:
                 expense.amount_residual = 0.0
                 continue
@@ -720,7 +720,7 @@ Or send your receipts at <a href="mailto:%(email)s?subject=Lunch%%20with%%20cust
             'tax_ids': [Command.set(self.tax_ids.ids)],
         }
 
-    # ✨ NUOVO METODO: Per expense negative con payment_mode='company_account'
+   
     def _prepare_move_line_vals_for_negative(self):
         """
         Prepara move line values per expense negative, invertendo i segni appropriatamente
@@ -967,6 +967,39 @@ Or send your receipts at <a href="mailto:%(email)s?subject=Lunch%%20with%%20cust
                 'auto_delete': True,
                 'references': msg_dict.get('message_id'),
             }).send()
+
+    # ----------------------------------------
+    # Export Override - FIX PER ANALYTIC DISTRIBUTION
+    # ----------------------------------------
+
+    @api.model
+    def export_data(self, fields_to_export):
+        """Override per convertire analytic_distribution da ID a nomi nell'export XLSX"""
+        
+        # Chiamata al metodo originale
+        result = super(HrExpense, self).export_data(fields_to_export)
+        
+        # Processa solo se c'è analytic_distribution nell'export
+        if 'analytic_distribution' in fields_to_export:
+            analytic_index = fields_to_export.index('analytic_distribution')
+            
+            # Per ogni riga di dati
+            for i, record in enumerate(self):
+                if record.analytic_distribution:
+                    # Converte JSON con ID in stringa con nomi
+                    names = []
+                    for analytic_id, percentage in record.analytic_distribution.items():
+                        analytic = self.env["account.analytic.account"].browse(int(analytic_id))
+                        if analytic.exists():
+                            if percentage == 100:
+                                names.append(analytic.name)
+                            else:
+                                names.append(f"{analytic.name} ({percentage}%)")
+                    
+                    # Sostituisce il valore nell'export
+                    result['datas'][i][analytic_index] = ", ".join(names)
+        
+        return result
 
 
 class HrExpenseSheet(models.Model):
@@ -1302,7 +1335,7 @@ class HrExpenseSheet(models.Model):
         self.activity_update()
         return res
 
-    # ✨ MODIFICA PRINCIPALE: Gestione separata per expense negative
+   
     def _do_create_moves(self):
         self = self.with_context(clean_context(self.env.context))
         skip_context = {
@@ -1316,7 +1349,7 @@ class HrExpenseSheet(models.Model):
         own_account_sheets = self.filtered(lambda sheet: sheet.payment_mode == 'own_account')
         company_account_sheets = self - own_account_sheets
         
-        # ✨ NOVITÀ: Separa company_account_sheets in base al segno del totale
+        
         positive_company_sheets = company_account_sheets.filtered(lambda sheet: sheet.total_amount >= 0)
         negative_company_sheets = company_account_sheets.filtered(lambda sheet: sheet.total_amount < 0)
         
@@ -1331,7 +1364,7 @@ class HrExpenseSheet(models.Model):
             payments = self.env['account.payment'].with_context(**skip_context).create([sheet._prepare_payment_vals() for sheet in positive_company_sheets])
             moves |= payments.move_id
         
-        # 3. ✨ NOVITÀ: Crea account.move (come Odoo 14) per company_account con importo negativo
+        
         if negative_company_sheets:
             moves |= self.env['account.move'].create([sheet._prepare_bill_vals_for_negative() for sheet in negative_company_sheets])
         
@@ -1429,7 +1462,7 @@ class HrExpenseSheet(models.Model):
             'line_ids':[Command.create(expense._prepare_move_line_vals()) for expense in self.expense_line_ids],
         }
 
-    # ✨ NUOVO METODO: Per expense negative con payment_mode='company_account'
+    
     def _prepare_bill_vals_for_negative(self):
         """
         Per expense negative con payment_mode='company_account', 
