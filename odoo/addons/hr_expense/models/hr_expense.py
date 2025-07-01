@@ -7,6 +7,9 @@ from odoo.tools import float_round
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import email_split, float_is_zero, float_repr, float_compare, is_html_empty
 from odoo.tools.misc import clean_context, format_date
+import logging
+
+_logger = logging.getLogger(__name__)
 
 
 class HrExpense(models.Model):
@@ -33,7 +36,7 @@ class HrExpense(models.Model):
         store=True
     )
 
-    
+    # METODI ANALITICI - CORRETTAMENTE INDENTATI
     @api.depends("analytic_distribution")
     def _compute_analytic_account_id(self):
         for record in self:
@@ -1416,6 +1419,14 @@ class HrExpenseSheet(models.Model):
         move_lines = []
         for expense in self.expense_line_ids:
             expense_amount = expense.total_amount_company if self.is_multiple_currency else expense.total_amount
+        
+            if expense.total_amount_company == 0:
+                _logger.warning(
+                    "Skipping expense line '%s' (id=%s) in report '%s' due to zero total_amount_company",
+                    expense.name, expense.id, self.name
+            )
+            continue
+        
             tax_data = self.env['account.tax']._compute_taxes(
                 [expense._convert_to_tax_base_line_dict(price_unit=expense_amount, currency=currency)],
                 include_caba_tags=(expense.payment_mode == 'company_account')
