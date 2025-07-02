@@ -7,9 +7,6 @@ from odoo.tools import float_round
 from odoo.exceptions import UserError, ValidationError
 from odoo.tools import email_split, float_is_zero, float_repr, float_compare, is_html_empty
 from odoo.tools.misc import clean_context, format_date
-import logging
-
-_logger = logging.getLogger(__name__)
 
 
 class HrExpense(models.Model):
@@ -1419,19 +1416,15 @@ class HrExpenseSheet(models.Model):
         move_lines = []
         for expense in self.expense_line_ids:
             expense_amount = expense.total_amount_company if self.is_multiple_currency else expense.total_amount
-        
-            if expense.total_amount_company == 0:
-                _logger.warning(
-                    "Skipping expense line '%s' (id=%s) in report '%s' due to zero total_amount_company",
-                    expense.name, expense.id, self.name
-            )
-            continue
-        
+
             tax_data = self.env['account.tax']._compute_taxes(
                 [expense._convert_to_tax_base_line_dict(price_unit=expense_amount, currency=currency)],
                 include_caba_tags=(expense.payment_mode == 'company_account')
             )
-            rate = abs(expense_amount / expense.total_amount_company)
+            
+            # --- CORREZIONE PER ZERO DIVISION ERROR ---
+            rate = abs(expense_amount / expense.total_amount_company) if not float_is_zero(expense.total_amount_company, precision_rounding=expense.company_currency_id.rounding) else 0
+            
             base_line_data, to_update = tax_data['base_lines_to_update'][0]  # Add base lines
             amount_currency = to_update['price_subtotal']
             expense_name = expense.name.split("\n")[0][:64]
@@ -1449,7 +1442,7 @@ class HrExpenseSheet(models.Model):
             move_lines.append(base_move_line)
             total_tax_line_balance = 0.0
             for tax_line_data in tax_data['tax_lines_to_add']:  # Add tax lines
-                tax_line_balance = expense.currency_id.round(tax_line_data['tax_amount'] / rate)
+                tax_line_balance = expense.currency_id.round(tax_line_data['tax_amount'] / rate) if rate else 0
                 total_tax_line_balance += tax_line_balance
                 tax_line = {
                     'name': self.env['account.tax'].browse(tax_line_data['tax_id']).name,
@@ -1459,7 +1452,7 @@ class HrExpenseSheet(models.Model):
                     'tax_tag_ids': tax_line_data['tax_tag_ids'],
                     'balance': tax_line_balance,
                     'amount_currency': tax_line_data['tax_amount'],
-                    'tax_base_amount': expense.currency_id.round(tax_line_data['base_amount'] / rate),
+                    'tax_base_amount': expense.currency_id.round(tax_line_data['base_amount'] / rate) if rate else 0,
                     'currency_id': currency.id,
                     'tax_repartition_line_id': tax_line_data['tax_repartition_line_id'],
                 }
